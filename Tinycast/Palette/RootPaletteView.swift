@@ -364,7 +364,18 @@ struct RootPaletteView: View {
                 .background(isCollapsed ? .clear : Theme.Colors.panelScrim)
                 // Square, as rounded glass feathers its edge; the clip alone cuts a crisp corner.
                 .background {
-                    Color.clear.glassEffect(isCollapsed ? .identity : .regular, in: Rectangle())
+                    if #available(macOS 26, *) {
+                        Color.clear.glassEffect(isCollapsed ? .identity : .regular, in: Rectangle())
+                    } else if !isCollapsed {
+                        GlassEffectView()
+                    }
+                }
+                .overlay {
+                    if #unavailable(macOS 26), !isCollapsed {
+                        RoundedRectangle(cornerRadius: metrics.radius.panel, style: .continuous)
+                            .strokeBorder(Theme.Colors.border, lineWidth: 0.5)
+                            .allowsHitTesting(false)
+                    }
                 }
                 .overlay {
                     Theme.Colors.dialogDimming
@@ -417,7 +428,12 @@ struct RootPaletteView: View {
     /// Split from `body` for the same reason `keyHandlers` is: one chain cannot carry them all.
     @ViewBuilder
     private func stateObservers(_ content: some View) -> some View {
-        emojiObservers(content)
+        lifecycleObservers(queryAndModeObservers(emojiObservers(content)))
+    }
+
+    @ViewBuilder
+    private func queryAndModeObservers(_ content: some View) -> some View {
+        content
             // Every show bumps focusToken so the search field refocuses.
             .onChange(of: vm.focusToken) {
                 resetCompactSelection()
@@ -491,6 +507,11 @@ struct RootPaletteView: View {
                     Task { await extensions.stop() }
                 }
             }
+    }
+
+    @ViewBuilder
+    private func lifecycleObservers(_ content: some View) -> some View {
+        content
             // `prepare` may change nothing else, so this still lands the list as freshly opened.
             .onChange(of: vm.resetToken) {
                 if menuOpen { closeMenus() }

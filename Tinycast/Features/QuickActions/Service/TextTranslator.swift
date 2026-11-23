@@ -1,5 +1,7 @@
+import AppKit
 import Foundation
 import NaturalLanguage
+import SwiftUI
 import Translation
 
 /// `TranslationError` is macOS 26.4 against a 26.0 floor, so failures stay plain `Error` here.
@@ -75,8 +77,11 @@ enum TextTranslator {
         _ text: String, from source: Locale.Language, to target: Locale.Language
     ) async throws -> String {
         do {
-            let session = TranslationSession(installedSource: source, target: target)
-            return try await session.translate(text).targetText
+            if #available(macOS 26, *) {
+                let session = TranslationSession(installedSource: source, target: target)
+                return try await session.translate(text).targetText
+            }
+            return try await MacOS15TranslationBridge.translate(text, from: source, to: target)
         } catch {
             try Task.checkCancellation()
             throw Failure.failed
@@ -126,5 +131,84 @@ enum TextTranslator {
     static func supportedLanguages() async -> [Locale.Language] {
         await LanguageAvailability().supportedLanguages
             .sorted { displayName(of: $0) < displayName(of: $1) }
+    }
+}
+
+/// Hosts SwiftUI's `.translationTask` in an offscreen panel for macOS 15, where direct sessions do not exist.
+@MainActor
+private enum MacOS15TranslationBridge {
+    @MainActor
+    private final class State {
+        var continuation: CheckedContinuation<String, Error>?
+        var panel: NSPanel?
+
+        func finish(with result: Result<String, Error>) {
+            guard let continuation else { return }
+            self.continuation = nil
+            panel?.orderOut(nil)
+            panel?.close()
+            panel = nil
+            continuation.resume(with: result)
+        }
+    }
+
+    private struct HostView: View {
+        let configuration: TranslationSession.Configuration
+        let text: String
+        let onFinish: @MainActor @Sendable (Result<String, Error>) -> Void
+
+        var body: some View {
+            Color.clear
+                .frame(width: 1, height: 1)
+                .translationTask(configuration, action: Self.makeAction(text: text, onFinish: onFinish))
+        }
+
+        private nonisolated static func makeAction(
+            text: String, onFinish: @escaping @MainActor @Sendable (Result<String, Error>) -> Void
+        ) -> (TranslationSession) async -> Void {
+            { session in
+                do {
+                    let response = try await session.translate(text)
+                    await onFinish(.success(response.targetText))
+                } catch {
+                    await onFinish(.failure(error))
+                }
+            }
+        }
+    }
+
+    static func translate(
+        _ text: String, from source: Locale.Language, to target: Locale.Language
+    ) async throws -> String {
+        let state = State()
+        let configuration = TranslationSession.Configuration(source: source, target: target)
+        return try await withTaskCancellationHandler {
+            try Task.checkCancellation()
+            return try await withCheckedThrowingContinuation { continuation in
+                state.continuation = continuation
+                let panel = NSPanel(
+                    contentRect: NSRect(x: -10_000, y: -10_000, width: 1, height: 1),
+                    styleMask: [.borderless, .nonactivatingPanel],
+                    backing: .buffered,
+                    defer: false
+                )
+                panel.alphaValue = 0
+                panel.ignoresMouseEvents = true
+                panel.isReleasedWhenClosed = false
+                panel.contentView = NSHostingView(
+                    rootView: HostView(
+                        configuration: configuration,
+                        text: text,
+                        onFinish: { result in state.finish(with: result) }
+                    )
+                )
+                state.panel = panel
+                panel.orderBack(nil)
+            }
+        } onCancel: {
+            Task { @MainActor in
+                state.finish(with: .failure(CancellationError()))
+            }
+        }
     }
 }

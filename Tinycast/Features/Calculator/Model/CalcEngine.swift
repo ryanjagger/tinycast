@@ -249,11 +249,18 @@ enum CalcEngine {
                 payload: payload)
         }
 
-        return CalcPercent.evaluate(tokens, query: query) ?? CalcRounding.evaluate(tokens, query: query)
-            ?? CalcFinance.evaluate(tokens, query: query) ?? CalcGrowth.evaluate(tokens, query: query)
+        if let result = CalcPercent.evaluate(tokens, query: query)
+            ?? CalcRounding.evaluate(tokens, query: query)
+            ?? CalcFinance.evaluate(tokens, query: query)
+            ?? CalcGrowth.evaluate(tokens, query: query)
             ?? CalcSpokenMath.evaluate(tokens, query: query)
-            ?? CalcStatistics.evaluate(tokens, query: query) ?? CalcRatePhrases.evaluate(tokens, query: query)
-            ?? CalcSubstance.evaluate(tokens, query: query) ?? CalcPixelDensity.evaluate(tokens, query: query)
+        {
+            return result
+        }
+        return CalcStatistics.evaluate(tokens, query: query)
+            ?? CalcRatePhrases.evaluate(tokens, query: query)
+            ?? CalcSubstance.evaluate(tokens, query: query)
+            ?? CalcPixelDensity.evaluate(tokens, query: query)
             ?? CalcPitch.evaluate(tokens, query: query)
     }
 

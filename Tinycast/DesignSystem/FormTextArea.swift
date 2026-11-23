@@ -69,6 +69,10 @@ struct FormTextArea: NSViewRepresentable {
             if let storage = view.textStorage {
                 let range = NSRange(location: 0, length: storage.length)
                 view.breakUndoCoalescing()
+                if let undoManager = view.undoManager, undoManager.groupingLevel > 0 {
+                    undoManager.endUndoGrouping()
+                    undoManager.beginUndoGrouping()
+                }
                 if view.shouldChangeText(in: range, replacementString: text) {
                     storage.replaceCharacters(in: range, with: text)
                     view.didChangeText()

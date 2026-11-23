@@ -27,6 +27,11 @@ struct HyperKeyEngine: Sendable {
     private var forwarded: ForwardedQuickPress?
     private(set) var quickPressGeneration: UInt64 = 0
 
+    init(route: HyperKeyRoute? = nil, includesShift: Bool = true) {
+        self.route = route
+        self.includesShift = includesShift
+    }
+
     mutating func setForwarding(_ enabled: Bool) {
         guard enabled != (forwarded != nil) else { return }
         cancelQuickPress()

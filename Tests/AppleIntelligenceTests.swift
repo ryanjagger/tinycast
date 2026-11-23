@@ -19,8 +19,10 @@ struct AppleIntelligenceTests {
     static func main() async {
         statusCopyCoversEveryReason()
         deltasFollowCumulativeSnapshots()
-        turnsSplitThePromptFromItsHistory()
-        generationErrorsBecomeReadableFailures()
+        if #available(macOS 26, *) {
+            turnsSplitThePromptFromItsHistory()
+            generationErrorsBecomeReadableFailures()
+        }
         if ProcessInfo.processInfo.environment["TINYCAST_TEST_APPLE_INTELLIGENCE"] == "1" {
             await onDeviceModelAnswers()
         } else {
@@ -68,6 +70,7 @@ struct AppleIntelligenceTests {
         expect(repeated.delta(from: "Hello").isEmpty, "an unchanged snapshot emits nothing")
     }
 
+    @available(macOS 26, *)
     static func turnsSplitThePromptFromItsHistory() {
         let request = AIRequest(
             instructions: "Be brief.",
@@ -112,6 +115,7 @@ struct AppleIntelligenceTests {
         expect(empty.prompt == nil, "a request with no user turn has no prompt")
     }
 
+    @available(macOS 26, *)
     static func generationErrorsBecomeReadableFailures() {
         let context = LanguageModelSession.GenerationError.Context(
             debugDescription: "internal-detail-42")
@@ -163,11 +167,13 @@ struct AppleIntelligenceTests {
         expect(finished, "the on-device stream terminated with .finished")
     }
 
+    @available(macOS 26, *)
     private static func text(_ segments: [Transcript.Segment]) -> String {
         segments.compactMap { if case .text(let segment) = $0 { segment.content } else { nil } }
             .joined()
     }
 
+    @available(macOS 26, *)
     private static func entryText(_ entry: Transcript.Entry) -> String {
         switch entry {
         case .instructions(let value): return text(value.segments)

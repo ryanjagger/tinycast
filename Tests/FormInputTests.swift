@@ -28,6 +28,7 @@ struct FormInputTests {
         let window = NSWindow(
             contentRect: NSRect(x: 0, y: 0, width: 300, height: height),
             styleMask: .borderless, backing: .buffered, defer: false)
+        window.appearance = NSAppearance(named: .darkAqua)
         window.isReleasedWhenClosed = false
         window.contentView = content
         content.layoutSubtreeIfNeeded()

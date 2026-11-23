@@ -158,7 +158,7 @@ struct CalendarSettingsView: View {
 
     /// Routed through the coordinator so enabling, which is also consent, confirms first.
     private var enabledBinding: Binding<Bool> {
-        Binding(get: { settings.calendarEnabled }, set: setCalendarEnabled)
+        Binding(get: { settings.calendarEnabled }, set: { setCalendarEnabled($0) })
     }
 
     /// A grant can leave the switch where it was, so the main app is told to read access again.

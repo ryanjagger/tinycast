@@ -2,10 +2,11 @@ import SwiftUI
 
 /// Central design tokens; every dark colour is the literal the forced-dark build shipped.
 enum Theme {
-    /// macOS 26 glass casts its own shadow; on 27 bare glass has none and needs the window's.
+    /// macOS 26 glass casts its own shadow; 15 and 27 have none and need the window's.
     static var glassCastsShadow: Bool {
         if #available(macOS 27, *) { return false }
-        return true
+        if #available(macOS 26, *) { return true }
+        return false
     }
 
     enum Spacing {
@@ -618,7 +619,17 @@ enum Theme {
 }
 
 extension View {
+    @ViewBuilder
     func frosted(in shape: some Shape) -> some View {
-        glassEffect(.regular.interactive(), in: shape)
+        if #available(macOS 26, *) {
+            glassEffect(.regular.interactive(), in: shape)
+        } else {
+            background(.regularMaterial, in: shape)
+                .overlay {
+                    shape.stroke(Theme.Colors.border, lineWidth: 0.5)
+                        .clipShape(shape)
+                        .allowsHitTesting(false)
+                }
+        }
     }
 }
