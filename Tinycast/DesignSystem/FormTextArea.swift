@@ -69,7 +69,10 @@ struct FormTextArea: NSViewRepresentable {
             if let storage = view.textStorage {
                 let range = NSRange(location: 0, length: storage.length)
                 view.breakUndoCoalescing()
-                if let undoManager = view.undoManager, undoManager.groupingLevel > 0 {
+                // macOS 15 keeps same-turn edits in one UndoManager group, merging typing with writes.
+                if #unavailable(macOS 26), let undoManager = view.undoManager,
+                    undoManager.groupingLevel > 0
+                {
                     undoManager.endUndoGrouping()
                     undoManager.beginUndoGrouping()
                 }

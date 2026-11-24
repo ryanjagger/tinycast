@@ -10,13 +10,13 @@ When this document and the code disagree, the code is probably right and this fi
 
 ## Posture
 
-Tinycast supports macOS 26 and later, with macOS 27 strongly preferred. Swift 6+ with complete strict
+This fork supports macOS 15 (Sequoia) and later, adopting macOS 26+/27+ APIs where available. Swift 6+ with complete strict
 concurrency is required. Prefer the latest Swift patterns and modern Apple APIs, following
 [`AGENTS.md`](../AGENTS.md#posture-modern-first-always).
 
 Verify API and language-feature availability against the SDK and compiler used by the build and CI.
-Use direct availability checks where macOS 27+ APIs require them to preserve macOS 26 support. Do not
-introduce compatibility layers, legacy workarounds, support below macOS 26 or speculative fallbacks.
+Use direct availability checks where macOS 26+/27+ APIs require them to preserve macOS 15 support. Do not
+introduce support below macOS 15 or speculative fallbacks.
 Migration code lives only in `Migrations/` and is deleted after one stable release; see
 [migrations.md](migrations.md).
 

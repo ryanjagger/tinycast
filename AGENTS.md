@@ -8,7 +8,7 @@ dependencies.
 
 ## Posture: modern-first, always
 
-**Tinycast supports macOS 26 and later, with macOS 27 strongly preferred.** Swift 6+ with complete
+**This fork supports macOS 15 (Sequoia) and later, with macOS 26+ APIs used where available.** Swift 6+ with complete
 strict concurrency is required. Prefer the latest Swift patterns and modern Apple APIs.
 
 Prefer current APIs and language features:
@@ -25,8 +25,8 @@ Prefer current APIs and language features:
   keep wrappers that only preserve an old spelling.
 - **A deprecated API is a defect**, not a warning to live with.
 - **Verify API and language-feature availability** against the SDK and compiler used by the build
-  and CI. Use direct availability checks where macOS 27+ APIs require them to preserve macOS 26 support.
-- **No compatibility layers, legacy workarounds or obsolete patterns.** No support below macOS 26 or
+  and CI. Use direct availability checks where macOS 26+/27+ APIs require them to preserve macOS 15 support.
+- **No unnecessary compatibility layers, legacy workarounds or obsolete patterns.** No support below macOS 15 or
   speculative fallbacks. Keep the implementation direct. Migration code lives only in
   `Tinycast/Migrations/` and is deleted after one stable release ([migrations.md](docs/migrations.md)).
 

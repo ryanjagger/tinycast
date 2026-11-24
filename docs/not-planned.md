@@ -23,9 +23,8 @@ launchers. We accept that to keep the app simple.
 
 ## Mac, languages and updates
 
-- **Older macOS (Sonoma, Sequoia).** Tinycast needs macOS 26 or later. Support for old versions made
-  the app slower on new Macs. Old builds stay in past releases. The last Sequoia build is 0.9.7.
-  ([#1611](https://github.com/abue-ammar/tinycast/issues/1611), [#517](https://github.com/abue-ammar/tinycast/issues/517))
+- **Older macOS (Sonoma and earlier).** This fork supports macOS 15 (Sequoia) and later (upstream
+  requires macOS 26+). Support below macOS 15 is not planned.
 - **Windows or Linux.** Tinycast is Mac only. It uses Apple tools that don't run on other systems.
   ([#637](https://github.com/abue-ammar/tinycast/issues/637), [#720](https://github.com/abue-ammar/tinycast/issues/720))
 - **More app languages.** Tinycast comes in English plus eight languages. That list is final for now. We may add one more

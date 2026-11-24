@@ -17,7 +17,7 @@ final class ProcessLink<Outgoing: Encodable & Sendable, Incoming: Decodable & Se
     private let child: Process?
     private let reader = DispatchQueue(label: "com.tinycast.process-link.read")
     private let writer = DispatchQueue(label: "com.tinycast.process-link.write")
-    private var receiver: Task<Void, Never>?
+    private nonisolated(unsafe) var receiver: Task<Void, Never>?
     private let logger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.abueammar.tinycast", category: "ProcessLink")
 
@@ -30,7 +30,7 @@ final class ProcessLink<Outgoing: Encodable & Sendable, Incoming: Decodable & Se
         }
     }
 
-    isolated deinit {
+    deinit {
         receiver?.cancel()
         channel.close(flags: .stop)
     }

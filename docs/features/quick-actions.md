@@ -169,8 +169,10 @@ names is the one with no downloaded asset of its own.
 reports Arabic as `ar-EG` and English as `en-US`, and the translator calls a pair that differs only by
 region unsupported, so the check compares language and script, never region.
 
-`TranslationError` is annotated `macOS 26.4` while the deployment floor is `26.0`, so failures are
-caught as plain `Error` and reported by what was asked rather than by matching its cases.
+`TranslationError` is annotated `macOS 26.4` while the deployment floor is `15.0`, so failures are
+caught as plain `Error` and reported by what was asked rather than by matching its cases. On macOS 15,
+where `TranslationSession(installedSource:target:)` is unavailable, `TextTranslator` bridges installed
+pairs through SwiftUI's `.translationTask` in an offscreen panel with a timeout.
 
 **The picker offers Apple's own list, never the reader's preferred languages.** `supportedLanguages`
 is 47 entries on macOS 26 and is the framework's to change; building the menu from

@@ -5,8 +5,8 @@ verifying a change is [testing.md](testing.md).
 
 ## Requirements
 
-- macOS 26 or later (Liquid Glass).
-- Xcode 27: it provides the SwiftUI macro plugin and the SDK.
+- macOS 15 or later (uses `NSVisualEffectView` / SwiftUI materials on macOS 15, Liquid Glass on macOS 26+).
+- Xcode 26.3 or later: it provides the SwiftUI macro plugin and the macOS 26 SDK.
 - [XcodeGen](https://github.com/yonaskolb/XcodeGen), and for linting:
   `brew install swiftlint`.
 - Node, for the generators and the local test stub servers `run-tests.sh` drives. It is the only

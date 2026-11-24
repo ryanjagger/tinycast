@@ -11,9 +11,7 @@ final class RegionNumberFormatMonitor {
         token = NotificationCenter.default.addObserver(
             forName: NSLocale.currentLocaleDidChangeNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            Task { @MainActor [weak self] in
-                self?.system = Self.read()
-            }
+            MainActor.assumeIsolated { self?.system = Self.read() }
         }
     }
 

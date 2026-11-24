@@ -22,7 +22,7 @@ Read the [Code of Conduct](CODE_OF_CONDUCT.md) too. It covers notifications, spa
 
 ## Setup
 
-- macOS 26+, Xcode 26. Do the one-time signing setup
+- macOS 15+, Xcode 26.3+. Do the one-time signing setup
   ([`docs/signing.md`](docs/signing.md) §1).
 - `open Tinycast.xcodeproj` → ⌘R. Debug builds are their own channel (`Tinycast Dev.app`).
 - After editing `project.yml`: `xcodegen generate`, commit the result. No SwiftPM.

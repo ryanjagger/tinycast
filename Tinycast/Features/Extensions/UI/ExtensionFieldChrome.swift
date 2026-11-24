@@ -1,3 +1,4 @@
+import AppKit
 import SwiftUI
 
 /// The one control surface a form draws, kept here rather than in `DesignSystem`.
@@ -46,6 +47,36 @@ extension View {
             ExtensionFieldChrome(
                 focused: focused, open: open, multiline: multiline))
     }
+
+    /// Extension-owned glass fallback, kept here so extension surfaces never depend on DesignSystem.
+    @ViewBuilder
+    func extensionGlassSurface(in shape: some Shape) -> some View {
+        if #available(macOS 26, *) {
+            glassEffect(.regular, in: shape)
+        } else {
+            background {
+                ExtensionGlassBackdrop()
+                    .clipShape(shape)
+            }
+            .overlay {
+                shape.stroke(Theme.Colors.border, lineWidth: 0.5)
+                    .clipShape(shape)
+                    .allowsHitTesting(false)
+            }
+        }
+    }
+}
+
+private struct ExtensionGlassBackdrop: NSViewRepresentable {
+    func makeNSView(context: Context) -> NSVisualEffectView {
+        let view = NSVisualEffectView()
+        view.material = .hudWindow
+        view.blendingMode = .behindWindow
+        view.state = .active
+        return view
+    }
+
+    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {}
 }
 
 struct ExtensionDisclosureChevron: View {

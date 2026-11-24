@@ -90,7 +90,7 @@ struct ExtensionActionsPanel: View {
             return .handled
         }
         .frame(width: panel.width)
-        .glassSurface(in: shape)
+        .extensionGlassSurface(in: shape)
         .clipShape(shape)
     }
 

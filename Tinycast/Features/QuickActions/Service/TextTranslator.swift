@@ -4,7 +4,7 @@ import NaturalLanguage
 import SwiftUI
 import Translation
 
-/// `TranslationError` is macOS 26.4 against a 26.0 floor, so failures stay plain `Error` here.
+/// `TranslationError` is macOS 26.4 against a 15.0 floor, so failures stay plain `Error` here.
 enum TextTranslator {
     enum Failure: LocalizedError, Equatable {
         case undetectableSource
@@ -134,17 +134,22 @@ enum TextTranslator {
     }
 }
 
-/// Hosts SwiftUI's `.translationTask` in an offscreen panel for macOS 15, where direct sessions do not exist.
+/// Hosts `.translationTask` in an offscreen panel on macOS 15, where direct sessions do not exist.
 @MainActor
 private enum MacOS15TranslationBridge {
+    private static let timeout = Duration.seconds(10)
+
     @MainActor
     private final class State {
         var continuation: CheckedContinuation<String, Error>?
         var panel: NSPanel?
+        var timeoutTask: Task<Void, Never>?
 
         func finish(with result: Result<String, Error>) {
             guard let continuation else { return }
             self.continuation = nil
+            timeoutTask?.cancel()
+            timeoutTask = nil
             panel?.orderOut(nil)
             panel?.close()
             panel = nil
@@ -203,6 +208,10 @@ private enum MacOS15TranslationBridge {
                     )
                 )
                 state.panel = panel
+                state.timeoutTask = Task {
+                    try? await Task.sleep(for: timeout)
+                    state.finish(with: .failure(TextTranslator.Failure.failed))
+                }
                 panel.orderBack(nil)
             }
         } onCancel: {

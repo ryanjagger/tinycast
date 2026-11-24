@@ -105,7 +105,14 @@ final class MCPOAuthListener {
         connectionTasks[id] = Task { [weak self] in
             defer {
                 connection.cancel()
-                self?.connectionTasks[id] = nil
+                if let self {
+                    self.connectionTasks[id] = nil
+                    if let listener = self.listener,
+                        listener.newConnectionLimit != NWListener.InfiniteConnectionLimit
+                    {
+                        listener.newConnectionLimit += 1
+                    }
+                }
             }
             await self?.receive(
                 connection, state: state, issuer: issuer, requiresIssuer: requiresIssuer)

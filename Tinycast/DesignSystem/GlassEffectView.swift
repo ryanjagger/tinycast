@@ -2,24 +2,18 @@ import AppKit
 import SwiftUI
 
 struct GlassEffectView: NSViewRepresentable {
-    var material: NSVisualEffectView.Material = .hudWindow
-
     func makeNSView(context: Context) -> NSView {
         if #available(macOS 26, *) {
             return NSGlassEffectView()
         }
         let view = NSVisualEffectView()
-        view.material = material
+        view.material = .hudWindow
         view.blendingMode = .behindWindow
         view.state = .active
         return view
     }
 
-    func updateNSView(_ nsView: NSView, context: Context) {
-        if let effectView = nsView as? NSVisualEffectView {
-            effectView.material = material
-        }
-    }
+    func updateNSView(_ nsView: NSView, context: Context) {}
 }
 
 extension View {
